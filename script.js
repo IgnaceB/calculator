@@ -1,5 +1,7 @@
 //creating sections
 const calculator = document.querySelector("main")
+const log=document.createElement("ul")
+document.body.appendChild(log)
 
 const createSecNb = document.createElement("section")
 const createSecOp = document.createElement("section")
@@ -8,78 +10,148 @@ calculator.appendChild(createSecNb)
 calculator.appendChild(createSecOp)
 calculator.appendChild(createScreen)
 
-const SecNb = calculator.children[1]
-const SecOp = calculator.lastElementChild
+const SecNb = calculator.lastElementChild
+const SecOp = calculator.children[1] 
 const SecScreen = calculator.firstElementChild
 
 //styling sections
-SecScreen.style = "display:flex; height:110px; width:50%; justify-content:space-between; align-items:center;margin-bottom:10px"
-SecNb.style = "display:flex; height:50px; width:300px ; justify-content:space-between; align-items:center"
-SecOp.style = "display:flex; height:50px; width:300px; justify-content:space-between; align-items:center"
+document.style="box-sizing:border-box"
+calculator.style = "width:350px; height:400px; border: solid 2px black;"
+SecScreen.style = "display:flex; height:110px; width:100%; justify-content:space-between; align-items:center; flex-direction: column;margin-bottom:10px;border:solid black 1px"
+SecNb.style = "box-sizing:border-box;display:flex; height:200px; width:100% ; justify-content:flex-start; align-items:space-between; flex-wrap:wrap; padding:10px;"
+SecOp.style = "display:flex; height:50px; width:100%; justify-content:space-around; align-items:center"
 
 //creating screen
 const text = document.createElement('p')
+const history = document.createElement('p')
+SecScreen.appendChild(history)
 SecScreen.appendChild(text)
-const screen = SecScreen.firstElementChild
+const historyscreen = SecScreen.firstElementChild
+const screen = SecScreen.lastElementChild
 screen.style = "width:300px; height:100px; border:solid 1px;"
+historyscreen.style = "width:300px; height:100px; border:solid 1px;"
 
 // Styles
-const styleNum = "height:30px; width:30px; border: solid 1px; margin: 1px;"
-const styleOp = "height:30px; width:30px; border: solid 1px; margin: 1px;"
-const stylep = "height:30px; width:30px; margin:0;padding:0; text-align:center; padding-top:5px; cursor:pointer"
+const styleNum = "margin:10px;height:50px; width:70px; border: solid 1px; margin: 5px;"
+const styleOp = "height:40px; width:40px; border: solid 1px; margin: 1px;"
+const stylep = "height:50px; width:70px; margin:0;padding:0; text-align:center; padding-top:5px; cursor:pointer"
+const stylepOp = "height:40px; width:40px; margin:0;padding:0; text-align:center; padding-top:5px; cursor:pointer"
 const stylescreen = ""
 
-//Functions Reporting numbers and operators
-//initiate screen.value
-screen.value = 0
+
+//initiate screen.value and array of result + nr of operators + historic
+let arrayRes = []
+let countOp = 0
+let arrayOld = ""
+let historic = 0
+
+// event on click on Number
 const reportNb = (event) => {
-    if (Number.isInteger(screen.innerText)) {
-        screen.innerText = screen.innerText + event.target.id
-        screen.value = screen.value + screen.innerText
-    }
-    {
-        screen.innerText = event.target.id
-        screen.value = screen.value + screen.innerText
-    }
+
+    screen.innerText = screen.innerText + event.target.id
+
 }
+
+//event on click on operator
 const reportOp = (event) => {
     if (event.target.id == "=") {
-        let result = []
+        arrayRes.push(screen.innerText)
+        arrayOld = arrayOld + screen.innerText + "="
+        screen.innerText = ""
+        console.log(arrayRes)
+        console.log(countOp)
+        let index = 0
+        let total = 0
+        for (let i = 0; i < countOp; i++) {
+            if (total == 0) {
+                console.log("init")
+                console.log(total)
+                switch (arrayRes[index + 1]) {
+                    case "+":
 
-        let largenumber=""
-        let count = 0
-        for (let i = 1; i< screen.value.length; i++) {
-            console.log(screen.value)
-            if (screen.value[i]<9 && i!=screen.value.length-1)  {
-                largenumber = largenumber + screen.value[i]
-                console.log(largenumber)
+                        total = parseInt(arrayRes[index]) + parseInt(arrayRes[index + 2])
+                        index = index + 3
+                        break
+                    case "-":
+
+                        total = arrayRes[index] - arrayRes[index + 2]
+                        index = index + 3
+                        break
+                    case "x":
+
+                        total = arrayRes[index] * arrayRes[index + 2]
+                        index = index + 3
+                        break
+                    case "/":
+
+                        total = arrayRes[index] / arrayRes[index + 2]
+                        index = index + 3
+                        break
+
+                }
             }
-            else if (screen.value[i]<9){
-                result[count]=screen.value[i]
-            }
+
             else {
-                result[count]=largenumber
-                count++
-                largenumber=0
-                result[count]=screen.value[i]
-                count++
-            }
-        }
-        let NbOp=0
-        for(let i=0; i<result.length;i++){
-            if (Integer.parseInt(result[i])!=NaN){
-                NbOp++
+                console.log(arrayRes[index])
+                switch (arrayRes[index]) {
+                    case "+":
+
+                        total = parseInt(total) + parseInt(arrayRes[index + 1])
+                        index = index + 2
+                        break
+                    case "-":
+
+                        total = total - parseInt(arrayRes[index + 1])
+                        index = index + 2
+                        break
+                    case "x":
+
+                        total = total * parseInt(arrayRes[index + 1])
+                        index = index + 2
+                        break
+                    case "/":
+
+                        total = total / parseInt(arrayRes[index + 1])
+                        index = index + 2
+                        break
+                }
             }
         }
 
-         console.log(NbOp)
+        // arrayOld=arrayOld+"="
+        screen.innerText = total
+        arrayRes = []
+        countOp = ""
+        const loglist=document.createElement("li")
+        document.body.lastElementChild.appendChild(loglist)
+        loglist.innerText=arrayOld+total
+    }
+    else if (event.target.id == "c") {
+        arrayRes = []
+        screen.innerText = ""
+        countOp = ""
+        arrayOld = []
+
     }
     else {
+        // arrayOld=arrayOld+screen.innerText+event.target.id
+        arrayRes.push(screen.innerText)
+        arrayOld = arrayOld + screen.innerText
         screen.innerText = event.target.id
-        screen.value = screen.value + event.target.id
-        console.log(screen.value)
-
+        arrayRes.push(screen.innerText)
+        if (event.target.id == "/" | event.target.id == "x") {
+            arrayOld = "(" + arrayOld + ")" + screen.innerText
+        }
+        else {
+            arrayOld = arrayOld + screen.innerText
+        }
+        screen.innerText = ""
+        countOp++
     }
+    // arrayOld=arrayOld+screen.innerText
+    historyscreen.innerText = arrayOld
+    console.log(arrayRes)
+    console.log(countOp)
 }
 
 //liste of values
@@ -109,7 +181,7 @@ value.forEach(element => {
         button.style = styleOp
         SecOp.appendChild(button)
         button.appendChild(text)
-        text.style = stylep
+        text.style = stylepOp
         text.id = element
         text.innerText = element
         button.addEventListener('click', reportOp)
